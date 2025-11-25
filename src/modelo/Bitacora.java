@@ -1,6 +1,7 @@
 package modelo;
 
-import java.util.Date;
+import java.time.LocalDate;
+import java.time.LocalTime;
 
 public class Bitacora {
 
@@ -8,13 +9,13 @@ public class Bitacora {
 
     private int bitaId;
     private String bitaCod;
-    private Date bitaFecha;
-    private Date bitaHoraInicio;
-    private Date bitaHoraFin;
+    private LocalDate bitaFecha;
+    private LocalTime bitaHoraInicio;
+    private LocalTime bitaHoraFin;
     private String bitaTipoUsu;
-    private Date bitaAno;
+    private LocalDate bitaAno;
 
-    public Bitacora(int bitaId, String bitaCod, Date bitaFecha, Date bitaHoraInicio, Date bitaHoraFin, String bitaTipoUsu, Date bitaAno, Usuario usuario){
+    public Bitacora(int bitaId, String bitaCod, LocalDate bitaFecha, LocalTime bitaHoraInicio, LocalTime bitaHoraFin, String bitaTipoUsu, LocalDate bitaAno, Usuario usuario){
         this.bitaId = bitaId;
         this.bitaCod = bitaCod;
         this.bitaFecha = bitaFecha;
@@ -23,6 +24,10 @@ public class Bitacora {
         this.bitaTipoUsu = bitaTipoUsu;
         this.bitaAno = bitaAno;
         this.usuario = usuario;
+    }
+
+    public Bitacora(){
+
     }
 
     public Usuario getUsuario() {
@@ -49,35 +54,35 @@ public class Bitacora {
         this.bitaCod = bitaCod;
     }
 
-    public Date getBitaHoraInicio() {
+    public LocalTime getBitaHoraInicio() {
         return bitaHoraInicio;
     }
 
-    public void setBitaHoraInicio(Date bitaHoraInicio) {
+    public void setBitaHoraInicio(LocalTime bitaHoraInicio) {
         this.bitaHoraInicio = bitaHoraInicio;
     }
 
-    public Date getBitaFecha() {
+    public LocalDate getBitaFecha() {
         return bitaFecha;
     }
 
-    public void setBitaFecha(Date bitaFecha) {
+    public void setBitaFecha(LocalDate bitaFecha) {
         this.bitaFecha = bitaFecha;
     }
 
-    public Date getBitaHoraFin() {
+    public LocalTime getBitaHoraFin() {
         return bitaHoraFin;
     }
 
-    public void setBitaHoraFin(Date bitaHoraFin) {
+    public void setBitaHoraFin(LocalTime bitaHoraFin) {
         this.bitaHoraFin = bitaHoraFin;
     }
 
-    public Date getBitaAno() {
+    public LocalDate getBitaAno() {
         return bitaAno;
     }
 
-    public void setBitaAno(Date bitaAno) {
+    public void setBitaAno(LocalDate bitaAno) {
         this.bitaAno = bitaAno;
     }
 
@@ -99,7 +104,7 @@ public class Bitacora {
                 ", bitaHoraInicio=" + bitaHoraInicio +
                 ", bitaHoraFin=" + bitaHoraFin +
                 ", bitaTipoUsu='" + bitaTipoUsu + '\'' +
-                ", bitaAno=" + bitaAno +
+                ", bitaAno=" + bitaAno.getYear() +
                 '}';
     }
 }

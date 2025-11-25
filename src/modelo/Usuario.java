@@ -1,6 +1,7 @@
 package modelo;
 
-import java.util.Date;
+
+import java.time.LocalDate;
 
 public class Usuario {
 
@@ -8,7 +9,7 @@ public class Usuario {
     private String usuCodigo;
     private String usuNombre;
     private String usuApellido;
-    private Date usuFechaNac;
+    private LocalDate usuFechaNac;
     private String usuProfesion;
     private String usuCI;
     private int usuCelular;
@@ -18,7 +19,7 @@ public class Usuario {
     private String usuContrasena;
     private boolean usuEstado;
 
-    public Usuario (int usuId, String usuCodigo, String usuNombre, String usuApellido, Date usuFechaNac, String usuProfesion, String usuCI, int usuCelular, String usuGenero, String usuCargo, String usuLogin, String usuContrasena, boolean usuEstado){
+    public Usuario (int usuId, String usuCodigo, String usuNombre, String usuApellido, LocalDate usuFechaNac, String usuProfesion, String usuCI, int usuCelular, String usuGenero, String usuCargo, String usuLogin, String usuContrasena, boolean usuEstado){
         this.usuId = usuId;
         this.usuCodigo = usuCodigo;
         this.usuCI = usuCI;
@@ -32,6 +33,10 @@ public class Usuario {
         this.usuLogin = usuLogin;
         this.usuContrasena = usuContrasena;
         this.usuEstado = usuEstado;
+    }
+
+    public Usuario(){
+
     }
 
     public int getUsuId() {
@@ -66,11 +71,11 @@ public class Usuario {
         this.usuApellido = usuApellido;
     }
 
-    public Date getUsuFechaNac() {
+    public LocalDate getUsuFechaNac() {
         return usuFechaNac;
     }
 
-    public void setUsuFechaNac(Date usuFechaNac) {
+    public void setUsuFechaNac(LocalDate usuFechaNac) {
         this.usuFechaNac = usuFechaNac;
     }
 
