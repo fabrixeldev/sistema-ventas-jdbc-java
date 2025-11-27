@@ -20,9 +20,11 @@ public class Cliente {
         this.cliCorreoElec = cliCorreoElec;
     }
 
-    public int getCliId() {
-        return cliId;
+    public Cliente(){
+
     }
+
+    public int getCliId() { return cliId; }
 
     public void setCliId(int cliId) {
         this.cliId = cliId;
@@ -52,9 +54,7 @@ public class Cliente {
         this.cliCI = cliCI;
     }
 
-    public int getCliCelular() {
-        return cliCelular;
-    }
+    public int getCliCelular() { return cliCelular; }
 
     public void setCliCelular(int cliCelular) {
         this.cliCelular = cliCelular;
