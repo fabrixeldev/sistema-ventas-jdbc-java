@@ -1,91 +1,125 @@
 package dao;
 
 import modelo.Cliente;
+import modelo.Conexion;
 
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.util.ArrayList;
-import java.util.Optional;
+import java.util.List;
 
 
 public class ClienteDao {
-    private Cliente cliente;
 
-    private ArrayList<Cliente> listaClientes = new ArrayList<>();
-
-    public void agregarCliente(int cliId, String cliNombre, String cliApellido, String cliCI, int cliCelular, String cliDireccion, String cliCorreoElec){
-        Cliente clienteNuevo = new Cliente(cliId, cliNombre, cliApellido, cliCI, cliCelular, cliDireccion, cliCorreoElec);
-        listaClientes.add(clienteNuevo);
-        System.out.println("Se registro el cliente: " + cliNombre + " " + cliApellido);
-    }
-
-    public void listarClientes (){
-        if (!listaClientes.isEmpty()){
-            listaClientes.stream()
-                    .forEach(System.out::println);
-        }else{
-            System.out.println("No existen datos para mostrar");
+    public void agregarCliente(Cliente c){
+        String sql = "INSERT INTO cliente (cliente_nombre, cliente_apellido, cliente_ci, cliente_celular, cliente_direccion, cliente_correoElectronico) VALUES (?,?,?,?,?,?)";
+        try (Connection con = Conexion.getConnection(); PreparedStatement ps = con.prepareStatement(sql)){
+            ps.setString(1, c.getCliNombre());
+            ps.setString(2, c.getCliApellido());
+            ps.setString(3, c.getCliCI());
+            ps.setInt(4, c.getCliCelular());
+            ps.setString(5, c.getCliDireccion());
+            ps.setString(6, c.getCliCorreoElec());
+            ps.executeUpdate();
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
         }
-
     }
 
-    public void editarClientes(int cliId, String cliNombre, String cliApellido, String cliCI, int cliCelular, String cliDireccion, String cliCorreoElec){
-        for (Cliente cliente : listaClientes){
-            if (cliente.getCliId() == cliId){
-                if (!cliNombre.equals("")){
-                    cliente.setCliNombre(cliNombre);
-                }
-                if (!cliApellido.equals("")){
-                    cliente.setCliApellido(cliApellido);
-                }
-                if (!cliCI.equals("")){
-                    cliente.setCliCI(cliCI);
-                }
-                if (cliCelular == 0){
-                    cliente.setCliCelular(cliCelular);
-                }
-                if (!cliDireccion.equals("")){
-                    cliente.setCliDireccion(cliDireccion);
-                }
-                if (!cliCorreoElec.equals("")){
-                    cliente.setCliCorreoElec(cliCorreoElec);
-                }
+    public List<Cliente> listarClientes (){
+        String sql = "SELECT * FROM cliente";
+        List<Cliente> lista = new ArrayList<>();
+        try (Connection con = Conexion.getConnection(); PreparedStatement ps = con.prepareStatement(sql); ResultSet rs = ps.executeQuery()){
+            while(rs.next()){
+                Cliente c = new Cliente();
+                c.setCliId(rs.getInt("cliente_id"));
+                c.setCliNombre(rs.getString("cliente_nombre"));
+                c.setCliApellido(rs.getString("cliente_apellido"));
+                c.setCliCI(rs.getString("cliente_ci"));
+                c.setCliCelular(rs.getInt("cliente_celular"));
+                c.setCliDireccion(rs.getString("cliente_direccion"));
+                c.setCliCorreoElec(rs.getString("cliente_correoElectronico"));
+
+                lista.add(c);
             }
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+        return lista;
+    }
+
+    public void editarClientes(Cliente c){
+        String sql = "UPDATE cliente SET cliente_nombre = ?, cliente_apellido = ?, cliente_ci = ?, cliente_celular = ?, cliente_direccion = ?, cliente_correoElectronico = ?";
+        try (Connection con = Conexion.getConnection(); PreparedStatement ps = con.prepareStatement(sql)){
+            ps.setString(1, c.getCliNombre());
+            ps.setString(2, c.getCliApellido());
+            ps.setString(3, c.getCliCI());
+            ps.setInt(4, c.getCliCelular());
+            ps.setString(5, c.getCliDireccion());
+            ps.setString(6, c.getCliCorreoElec());
+            ps.executeUpdate();
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
         }
     }
 
     public void eliminarClientes(int cliId){
-       Cliente encontrado = null;
-        for (Cliente c : listaClientes){
-            if (c.getCliId() == cliId){
-                encontrado = c;
-                break;
-            }
-        }
+        String sql = "DELETE FROM cliente WHERE cliente_id = ?";
+        try (Connection con = Conexion.getConnection(); PreparedStatement ps = con.prepareStatement(sql)){
+            ps.setInt(1, cliId);
+            ps.executeUpdate();
 
-        if (encontrado != null){
-            listaClientes.remove(encontrado);
-            System.out.println("Se elimino el cliente: " + encontrado.getCliId() + " " + encontrado.getCliNombre());
-        }else {
-            System.out.println("No se encontraron coincidencias");
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
         }
     }
 
-    public void buscarCliente(String cliNombre){
-        Optional<Cliente> busqueda = listaClientes.stream()
-                .filter(c -> c.getCliNombre().equals(cliNombre))
-                .findFirst();
-
-        busqueda.ifPresentOrElse(
-                c -> System.out.println("Se encontro el cliente: " + cliNombre + " " + c.toString()),
-                () -> System.out.println("No se encontraron coincidencias con: " + cliNombre)
-        );
+    public List<Cliente> buscarCliente(String cliCI){
+        String sql = "SELECT * FROM cliente WHERE cliente_id = ?";
+        List<Cliente> lista = new ArrayList<>();
+        try (Connection con = Conexion.getConnection(); PreparedStatement ps = con.prepareStatement(sql)){
+            ps.setString(1, cliCI);
+            try (ResultSet rs = ps.executeQuery()){
+                while (rs.next()){
+                    Cliente c = new Cliente();
+                    c.setCliId(rs.getInt("cliente_id"));
+                    c.setCliNombre(rs.getString("cliente_nombre"));
+                    c.setCliApellido(rs.getString("cliente_apellido"));
+                    c.setCliCI(rs.getString("cliente_ci"));
+                    c.setCliCelular(rs.getInt("cliente_celular"));
+                    c.setCliDireccion(rs.getString("cliente_direccion"));
+                    c.setCliCorreoElec(rs.getString("cliente_correoElectronico"));
+                    lista.add(c);
+                }
+            }
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+        return lista;
     }
 
     public Cliente obtenerClientePorId(int cliId){
-        for (Cliente cli: listaClientes){
-            if (cli.getCliId() == cliId){
-                return cli;
+        String sql = "SELECT * FROM cliente WHERE cliente_id = ?";
+        Cliente cliente = null;
+        try (Connection con = Conexion.getConnection(); PreparedStatement ps = con.prepareStatement(sql)){
+            ps.setInt(1, cliId);
+            try (ResultSet rs = ps.executeQuery()){
+                while (rs.next()){
+                    cliente = new Cliente();
+                    cliente.setCliId(rs.getInt("cliente_id"));
+                    cliente.setCliNombre(rs.getString("cliente_nombre"));
+                    cliente.setCliApellido(rs.getString("cliente_apellido"));
+                    cliente.setCliCI(rs.getString("cliente_ci"));
+                    cliente.setCliCelular(rs.getInt("cliente_celular"));
+                    cliente.setCliDireccion(rs.getString("cliente_direccion"));
+                    cliente.setCliCorreoElec(rs.getString("cliente_correoElectronico"));
+                }
             }
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
         }
-        return null;
+        return cliente;
     }
 }
