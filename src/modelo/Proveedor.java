@@ -21,6 +21,10 @@ public class Proveedor {
         this.provCorrElectr = provCorrElectr;
     }
 
+    public Proveedor (){
+
+    }
+
     public int getProvId() {
         return provId;
     }
