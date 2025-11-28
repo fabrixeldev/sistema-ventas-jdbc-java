@@ -1,6 +1,6 @@
 package modelo;
 
-import java.util.Date;
+import java.time.LocalDateTime;
 
 public class Venta{
 
@@ -10,11 +10,11 @@ public class Venta{
     private int ventId;
     private String ventCodigo;
     private String ventNumCompro;
-    private Date ventFecha;
+    private LocalDateTime ventFecha;
     private double ventTotal;
     private boolean ventEstado;
 
-    public Venta (int ventId, String ventCodigo, String ventNumCompro, Date ventFecha, double ventTotal, boolean ventEstado, Usuario usuario , Cliente cliente){
+    public Venta (int ventId, String ventCodigo, String ventNumCompro, LocalDateTime ventFecha, double ventTotal, boolean ventEstado, Usuario usuario , Cliente cliente){
         this.ventId = ventId;
         this.ventCodigo = ventCodigo;
         this.ventNumCompro = ventNumCompro;
@@ -25,9 +25,11 @@ public class Venta{
         this.cliente = cliente;
     }
 
-    public Usuario getUsuario() {
-        return usuario;
+    public Venta (){
+
     }
+
+    public Usuario getUsuario() { return usuario; }
 
     public void setUsuario(Usuario usuario) {
         this.usuario = usuario;
@@ -65,11 +67,11 @@ public class Venta{
         this.ventNumCompro = ventNumCompro;
     }
 
-    public Date getVentFecha() {
+    public LocalDateTime getVentFecha() {
         return ventFecha;
     }
 
-    public void setVentFecha(Date ventFecha) {
+    public void setVentFecha(LocalDateTime ventFecha) {
         this.ventFecha = ventFecha;
     }
 
@@ -98,8 +100,8 @@ public class Venta{
                 ", ventFecha=" + ventFecha +
                 ", ventTotal=" + ventTotal +
                 ", ventEstado=" + ventEstado +
-                ", empleado= " + usuario.getUsuCodigo() +
-                ", cliente= " + cliente.getCliApellido() +
+                ", empleado= " + usuario.getUsuId() +
+                ", cliente= " + cliente.getCliId() +
                 '}';
     }
 }
