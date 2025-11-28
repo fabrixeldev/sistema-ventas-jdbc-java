@@ -19,6 +19,10 @@ public class Comprobante {
         this.venta = venta;
     }
 
+    public Comprobante (){
+
+    }
+
     public Venta getVenta() {
         return venta;
     }
@@ -70,7 +74,7 @@ public class Comprobante {
     @Override
     public String toString() {
         return "Comprobante{" +
-                " venta=" + venta.getVentCodigo() +
+                " venta=" + venta.getVentId() +
                 ", comprobId=" + comprobId +
                 ", comprobCodigo='" + comprobCodigo + '\'' +
                 ", comprobTipo='" + comprobTipo + '\'' +
