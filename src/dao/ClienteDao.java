@@ -51,7 +51,7 @@ public class ClienteDao {
     }
 
     public void editarClientes(Cliente c){
-        String sql = "UPDATE cliente SET cliente_nombre = ?, cliente_apellido = ?, cliente_ci = ?, cliente_celular = ?, cliente_direccion = ?, cliente_correoElectronico = ?";
+        String sql = "UPDATE cliente SET cliente_nombre = ?, cliente_apellido = ?, cliente_ci = ?, cliente_celular = ?, cliente_direccion = ?, cliente_correoElectronico = ? WHERE cliente_id = ?";
         try (Connection con = Conexion.getConnection(); PreparedStatement ps = con.prepareStatement(sql)){
             ps.setString(1, c.getCliNombre());
             ps.setString(2, c.getCliApellido());
@@ -59,6 +59,7 @@ public class ClienteDao {
             ps.setInt(4, c.getCliCelular());
             ps.setString(5, c.getCliDireccion());
             ps.setString(6, c.getCliCorreoElec());
+            ps.setInt(7, c.getCliId());
             ps.executeUpdate();
         } catch (SQLException e) {
             throw new RuntimeException(e);
@@ -77,7 +78,7 @@ public class ClienteDao {
     }
 
     public List<Cliente> buscarCliente(String cliCI){
-        String sql = "SELECT * FROM cliente WHERE cliente_id = ?";
+        String sql = "SELECT * FROM cliente WHERE cliente_ci = ?";
         List<Cliente> lista = new ArrayList<>();
         try (Connection con = Conexion.getConnection(); PreparedStatement ps = con.prepareStatement(sql)){
             ps.setString(1, cliCI);
