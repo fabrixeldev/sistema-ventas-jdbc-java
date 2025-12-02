@@ -108,15 +108,17 @@ public class ProveedorDao {
         try (Connection con = Conexion.getConnection(); PreparedStatement ps = con.prepareStatement(sql)){
             ps.setInt(1, provId);
             try (ResultSet rs = ps.executeQuery()){
-                proveedor = new Proveedor();
-                proveedor.setProvId(rs.getInt("proveedor_id"));
-                proveedor.setProvCodigo(rs.getString("proveedor_codigo"));
-                proveedor.setProvNombre(rs.getString("proveedor_nombre"));
-                proveedor.setProvTipDoc(rs.getString("proveedor_tipoDocumento"));
-                proveedor.setProvNumDoc(rs.getString("proveedor_numDocumento"));
-                proveedor.setProvCelular(rs.getInt("proveedor_celular"));
-                proveedor.setProvDireccion(rs.getString("proveedor_direccion"));
-                proveedor.setProvCorrElectr(rs.getString("proveedor_correoElectronico"));
+                while (rs.next()){
+                    proveedor = new Proveedor();
+                    proveedor.setProvId(rs.getInt("proveedor_id"));
+                    proveedor.setProvCodigo(rs.getString("proveedor_codigo"));
+                    proveedor.setProvNombre(rs.getString("proveedor_nombre"));
+                    proveedor.setProvTipDoc(rs.getString("proveedor_tipoDocumento"));
+                    proveedor.setProvNumDoc(rs.getString("proveedor_numDocumento"));
+                    proveedor.setProvCelular(rs.getInt("proveedor_celular"));
+                    proveedor.setProvDireccion(rs.getString("proveedor_direccion"));
+                    proveedor.setProvCorrElectr(rs.getString("proveedor_correoElectronico"));
+                }
             }
         } catch (SQLException e) {
             throw new RuntimeException(e);
