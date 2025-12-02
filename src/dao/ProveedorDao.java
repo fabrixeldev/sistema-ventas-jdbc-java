@@ -35,13 +35,13 @@ public class ProveedorDao {
             while (rs.next()){
                 Proveedor p = new Proveedor();
                 p.setProvId(rs.getInt("proveedor_id"));
-                p.setProvNombre(rs.getString("proveedor_codigo"));
+                p.setProvCodigo(rs.getString("proveedor_codigo"));
+                p.setProvNombre(rs.getString("proveedor_nombre"));
                 p.setProvTipDoc(rs.getString("proveedor_tipoDocumento"));
                 p.setProvNumDoc(rs.getString("proveedor_numDocumento"));
                 p.setProvCelular(rs.getInt("proveedor_celular"));
                 p.setProvDireccion(rs.getString("proveedor_direccion"));
                 p.setProvCorrElectr(rs.getString("proveedor_correoElectronico"));
-
                 lista.add(p);
             }
         } catch (SQLException e) {
@@ -51,7 +51,7 @@ public class ProveedorDao {
     }
 
     public void editarProveedor(Proveedor p){
-        String sql = "UPDATE proveedor SET proveedor_codigo = ?, proveedor_nombre = ?, proveedor_tipoDocumento = ?, proveedor_numDocumento = ?, proveedor_celular = ?, proveedor_direccion = ?, proveedor_correoElectronico = ?";
+        String sql = "UPDATE proveedor SET proveedor_codigo = ?, proveedor_nombre = ?, proveedor_tipoDocumento = ?, proveedor_numDocumento = ?, proveedor_celular = ?, proveedor_direccion = ?, proveedor_correoElectronico = ? WHERE proveedor_id = ?";
         try (Connection con = Conexion.getConnection(); PreparedStatement ps = con.prepareStatement(sql)){
             ps.setString(1, p.getProvCodigo());
             ps.setString(2, p.getProvNombre());
@@ -60,6 +60,7 @@ public class ProveedorDao {
             ps.setInt(5, p.getProvCelular());
             ps.setString(6, p.getProvDireccion());
             ps.setString(7, p.getProvCorrElectr());
+            ps.setInt(8, p.getProvId());
             ps.executeUpdate();
         } catch (SQLException e) {
             throw new RuntimeException(e);
@@ -85,7 +86,8 @@ public class ProveedorDao {
                 while (rs.next()){
                     Proveedor p = new Proveedor();
                     p.setProvId(rs.getInt("proveedor_id"));
-                    p.setProvNombre(rs.getString("proveedor_codigo"));
+                    p.setProvCodigo(rs.getString("proveedor_codigo"));
+                    p.setProvNombre(rs.getString("proveedor_nombre"));
                     p.setProvTipDoc(rs.getString("proveedor_tipoDocumento"));
                     p.setProvNumDoc(rs.getString("proveedor_numDocumento"));
                     p.setProvCelular(rs.getInt("proveedor_celular"));
@@ -108,7 +110,8 @@ public class ProveedorDao {
             try (ResultSet rs = ps.executeQuery()){
                 proveedor = new Proveedor();
                 proveedor.setProvId(rs.getInt("proveedor_id"));
-                proveedor.setProvNombre(rs.getString("proveedor_codigo"));
+                proveedor.setProvCodigo(rs.getString("proveedor_codigo"));
+                proveedor.setProvNombre(rs.getString("proveedor_nombre"));
                 proveedor.setProvTipDoc(rs.getString("proveedor_tipoDocumento"));
                 proveedor.setProvNumDoc(rs.getString("proveedor_numDocumento"));
                 proveedor.setProvCelular(rs.getInt("proveedor_celular"));
