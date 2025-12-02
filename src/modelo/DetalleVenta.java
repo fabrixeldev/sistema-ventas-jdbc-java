@@ -15,6 +15,10 @@ public class DetalleVenta {
         this.venta = venta;
     }
 
+    public DetalleVenta (){
+
+    }
+
     public Venta getVenta() {
         return venta;
     }
@@ -50,10 +54,10 @@ public class DetalleVenta {
     @Override
     public String toString() {
         return "DetalleVenta{" +
-                " venta=" + venta.getVentCodigo() +
-                ", detVenId=" + detVenId +
+                "detVenId=" + detVenId +
                 ", detVenPrecio=" + detVenPrecio +
                 ", detVenDescuento=" + detVenDescuento +
+                ", venta=" + venta.getVentId() +
                 '}';
     }
 }
