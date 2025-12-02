@@ -1,5 +1,6 @@
 package modelo;
 
+import java.time.LocalDateTime;
 import java.util.Date;
 
 public class Compra {
@@ -10,11 +11,11 @@ public class Compra {
     private int compraId;
     private String compraCodigo;
     private String compraNumComp;
-    private Date compraFecha;
+    private LocalDateTime compraFecha;
     private double compraTotal;
     private boolean compraEstado;
 
-    public Compra(int compraId, String compraCodigo,String compraNumComp, Date compraFecha, double compraTotal, boolean compraEstado, Usuario usuario, Proveedor proveedor){
+    public Compra(int compraId, String compraCodigo,String compraNumComp, LocalDateTime compraFecha, double compraTotal, boolean compraEstado, Usuario usuario, Proveedor proveedor){
         this.compraId = compraId;
         this.compraCodigo = compraCodigo;
         this.compraNumComp = compraNumComp;
@@ -23,6 +24,10 @@ public class Compra {
         this.compraEstado = compraEstado;
         this.usuario = usuario;
         this.proveedor = proveedor;
+    }
+
+    public Compra (){
+
     }
 
     public Usuario getUsuario() {
@@ -65,11 +70,11 @@ public class Compra {
         this.compraNumComp = compraNumComp;
     }
 
-    public Date getCompraFecha() {
+    public LocalDateTime getCompraFecha() {
         return compraFecha;
     }
 
-    public void setCompraFecha(Date compraFecha) {
+    public void setCompraFecha(LocalDateTime compraFecha) {
         this.compraFecha = compraFecha;
     }
 
@@ -92,14 +97,14 @@ public class Compra {
     @Override
     public String toString() {
         return "Compra{" +
-                " usuario=" + usuario.getUsuCodigo() +
-                ", proveedor=" + proveedor.getProvCodigo() +
-                ", compraId=" + compraId +
+                "compraId=" + compraId +
                 ", compraCodigo='" + compraCodigo + '\'' +
                 ", compraNumComp='" + compraNumComp + '\'' +
                 ", compraFecha=" + compraFecha +
                 ", compraTotal=" + compraTotal +
                 ", compraEstado=" + compraEstado +
+                " usuario=" + usuario.getUsuId() +
+                ", proveedor=" + proveedor.getProvId() +
                 '}';
     }
 }
