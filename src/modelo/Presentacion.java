@@ -12,17 +12,17 @@ public class Presentacion {
         this.presDescripcion = presDescripcion;
     }
 
-    public int getPresId() {
-        return presId;
+    public Presentacion (){
+
     }
+
+    public int getPresId() { return presId; }
 
     public void setPresId(int presId) {
         this.presId = presId;
     }
 
-    public String getPresNombre() {
-        return presNombre;
-    }
+    public String getPresNombre() { return presNombre; }
 
     public void setPresNombre(String presNombre) {
         this.presNombre = presNombre;
