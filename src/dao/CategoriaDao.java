@@ -1,74 +1,103 @@
 package dao;
 
 import modelo.Categoria;
+import modelo.Conexion;
 
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.util.ArrayList;
-import java.util.Optional;
+import java.util.List;
 
 public class CategoriaDao {
-    private ArrayList<Categoria> listaCategoria = new ArrayList<>();
 
-    public void agregarCategoria(int cateId, String cateNombre, String cateDescripcion){
-        Categoria categoriaNueva = new Categoria(cateId, cateNombre, cateDescripcion);
-        listaCategoria.add(categoriaNueva);
-        System.out.println("Se registro la categoria: " + categoriaNueva.getCateNombre());
-    }
-
-    public void listarCategoria(){
-        if (listaCategoria.size() != 0){
-            System.out.println(listaCategoria);
-        }else{
-            System.out.println("No existen datos para mostrar");
+    public void agregarCategoria(Categoria c){
+        String sql = "INSERT INTO categoria (categoria_nombre, categoria_descripcion) VALUES (?,?)";
+        try (Connection con = Conexion.getConnection(); PreparedStatement ps = con.prepareStatement(sql)){
+            ps.setString(1, c.getCateNombre());
+            ps.setString(2, c.getCateDescripcion());
+            ps.executeUpdate();
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
         }
     }
 
-    public void editarCategoria(int cateId, String cateNombre, String cateDescripcion){
-        for (Categoria categoria: listaCategoria){
-            if (categoria.getCateId() == cateId){
-                if (!cateNombre.equals("")){
-                    categoria.setCateNombre(cateNombre);
-                }
-                if (!cateDescripcion.equals("")){
-                    categoria.setCateDescripcion(cateDescripcion);
-                }
+    public List<Categoria> listarCategoria(){
+        List<Categoria> lista = new ArrayList<>();
+        String sql = "SELECT * FROM categoria";
+        try (Connection con = Conexion.getConnection(); PreparedStatement ps = con.prepareStatement(sql); ResultSet rs = ps.executeQuery()){
+            while (rs.next()){
+                Categoria c = new Categoria();
+                c.setCateId(rs.getInt("categoria_id"));
+                c.setCateNombre(rs.getString("categoria_nombre"));
+                c.setCateDescripcion(rs.getString("categoria_descripcion"));
+                lista.add(c);
             }
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+        return lista;
+    }
+
+    public void editarCategoria(Categoria c){
+        String sql = "UPDATE categoria SET categoria_nombre = ?, categoria_descripcion = ? WHERE categoria_id = ?";
+        try (Connection con = Conexion.getConnection(); PreparedStatement ps = con.prepareStatement(sql)){
+            ps.setString(1, c.getCateNombre());
+            ps.setString(2, c.getCateDescripcion());
+            ps.setInt(3, c.getCateId());
+            ps.executeUpdate();
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
         }
     }
 
     public void eliminarCategoria(int cateId){
-        Categoria encontrado = null;
-        for (Categoria c:listaCategoria ){
-            if (c.getCateId() == cateId){
-                encontrado = c;
-            }
-        }
-
-        if (encontrado != null){
-            listaCategoria.remove(encontrado);
-            System.out.println("Se elimino la categoria" + cateId);
-        }else {
-            System.out.println("No se pudo eliminar " + cateId);
+        String sql = "DELETE FROM categoria WHERE categoria_id = ?";
+        try (Connection con = Conexion.getConnection(); PreparedStatement ps = con.prepareStatement(sql)){
+            ps.setInt(1, cateId);
+            ps.executeUpdate();
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
         }
     }
 
-    public void buscarCategoria(String cateNombre){
-        Optional<Categoria> busqueda = listaCategoria.stream()
-                .filter(s -> s.getCateNombre().equals(cateNombre))
-                .findFirst();
-
-        if (busqueda.isPresent()){
-            System.out.println("Categoria encontrada: " + toString());
-        }else {
-            System.out.println("No se encontro coincidencias con: " + cateNombre);
+    public List<Categoria> buscarCategoria(String cateNombre){
+        List<Categoria> lista = new ArrayList<>();
+        String sql = "SELECT * FROM categoria WHERE categoria_nombre = ?";
+        try (Connection con = Conexion.getConnection(); PreparedStatement ps = con.prepareStatement(sql)){
+            ps.setString(1, cateNombre);
+            try (ResultSet rs = ps.executeQuery()){
+                while (rs.next()){
+                    Categoria c = new Categoria();
+                    c.setCateId(rs.getInt("categoria_id"));
+                    c.setCateNombre(rs.getString("categoria_nombre"));
+                    c.setCateDescripcion(rs.getString("categoria_descripcion"));
+                    lista.add(c);
+                }
+            }
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
         }
+        return lista;
     }
 
     public Categoria obtenerCategoriaPorId(int cateId){
-        for (Categoria cate: listaCategoria){
-            if (cate.getCateId() == cateId){
-                return cate;
+        String sql = "SELECT * FROM categoria WHERE categoria_id = ?";
+        Categoria categoria = null;
+        try (Connection con = Conexion.getConnection(); PreparedStatement ps = con.prepareStatement(sql)){
+            ps.setInt(1, cateId);
+            try (ResultSet rs = ps.executeQuery()){
+                while (rs.next()){
+                    categoria = new Categoria();
+                    categoria.setCateId(rs.getInt("categoria_id"));
+                    categoria.setCateNombre(rs.getString("categoria_nombre"));
+                    categoria.setCateDescripcion(rs.getString("categoria_descripcion"));
+                }
             }
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
         }
-        return null;
+        return categoria;
     }
 }
