@@ -12,6 +12,10 @@ public class Laboratorio {
         this.labDescripcion = labDescripcion;
     }
 
+    public Laboratorio (){
+
+    }
+
     public int getLabId() {
         return labId;
     }
