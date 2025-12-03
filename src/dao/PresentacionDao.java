@@ -1,74 +1,103 @@
 package dao;
 
+import modelo.Conexion;
 import modelo.Presentacion;
 
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.util.ArrayList;
-import java.util.Optional;
+import java.util.List;
 
 public class PresentacionDao {
-    private ArrayList<Presentacion> listaPresentacion = new ArrayList<>();
 
-    public void agregarPresentacion(int presId, String presNombre, String presDescripcion) {
-        Presentacion presentacionNueva = new Presentacion(presId, presNombre, presDescripcion);
-        listaPresentacion.add(presentacionNueva);
-        System.out.println("Se registro la presentacion: " + presentacionNueva.getPresNombre());
-    }
-
-    public void listarPresentacion() {
-        if (listaPresentacion.size() != 0) {
-            System.out.println(listaPresentacion);
-        } else {
-            System.out.println("No existen datos para mostrar");
+    public void agregarPresentacion(Presentacion p) {
+        String sql = "INSERT INTO presentacion (presentacion_nombre, presentacion_descripcion) VALUES (?,?)";
+        try (Connection con = Conexion.getConnection(); PreparedStatement ps = con.prepareStatement(sql)){
+            ps.setString(1, p.getPresNombre());
+            ps.setString(2, p.getPresDescripcion());
+            ps.executeUpdate();
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
         }
     }
 
-    public void editarPresentacion(int presId, String presNombre, String presDescripcion) {
-        for (Presentacion presentacion : listaPresentacion){
-            if (presentacion.getPresId() == presId){
-                if (!presNombre.equals("")){
-                    presentacion.setPresNombre(presNombre);
-                }
-                if (!presDescripcion.equals("")){
-                    presentacion.setPresDescripcion(presDescripcion);
-                }
+    public List<Presentacion> listarPresentacion() {
+        List<Presentacion> lista = new ArrayList<>();
+        String sql = "SELECT * FROM presentacion";
+        try (Connection con = Conexion.getConnection(); PreparedStatement ps = con.prepareStatement(sql); ResultSet rs = ps.executeQuery()){
+            while (rs.next()){
+                Presentacion p = new Presentacion();
+                p.setPresId(rs.getInt("presentacion_id"));
+                p.setPresNombre(rs.getString("presentacion_nombre"));
+                p.setPresDescripcion(rs.getString("presentacion_descripcion"));
+                lista.add(p);
             }
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+        return lista;
+    }
+
+    public void editarPresentacion(Presentacion p) {
+        String sql = "UPDATE presentacion SET presentacion_nombre = ?, presentacion_descripcion = ? WHERE presentacion_id = ?";
+        try (Connection con = Conexion.getConnection(); PreparedStatement ps = con.prepareStatement(sql)){
+            ps.setString(1, p.getPresNombre());
+            ps.setString(2, p.getPresDescripcion());
+            ps.setInt(3, p.getPresId());
+            ps.executeUpdate();
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
         }
     }
 
     public void eliminarPresentacion(int presId){
-        Presentacion encontrado = null;
-        for (Presentacion p: listaPresentacion){
-            if (p.getPresId() == presId){
-                encontrado = p;
-            }
-        }
-
-        if (encontrado != null){
-            listaPresentacion.remove(encontrado);
-            System.out.println("Se elimino la presentacion: " + presId);
-        }else {
-            System.out.println("No se pudo eliminar la presentacion " + presId);
+        String sql = "DELETE FROM presentacion WHERE presentacion_id = ?";
+        try (Connection con = Conexion.getConnection(); PreparedStatement ps = con.prepareStatement(sql)){
+            ps.setInt(1, presId);
+            ps.executeUpdate();
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
         }
     }
 
-    public void buscarPresentacion(String presNombre){
-        Optional<Presentacion> busqueda = listaPresentacion.stream()
-                .filter(s -> s.getPresNombre().equals(presNombre))
-                .findFirst();
-
-        if (busqueda.isPresent()){
-            System.out.println("Presentacion encontrada: " + toString());
-        }else {
-            System.out.println("No se encontro coincidencias con " + presNombre);
+    public List<Presentacion> buscarPresentacion(String presNombre){
+        List<Presentacion> lista = new ArrayList<>();
+        String sql = "SELECT * FROM presentacion WHERE presentacion_nombre = ?";
+        try (Connection con = Conexion.getConnection(); PreparedStatement ps = con.prepareStatement(sql)){
+            ps.setString(1, presNombre);
+            try (ResultSet rs = ps.executeQuery()){
+                while (rs.next()){
+                    Presentacion p = new Presentacion();
+                    p.setPresId(rs.getInt("presentacion_id"));
+                    p.setPresNombre(rs.getString("presentacion_nombre"));
+                    p.setPresDescripcion(rs.getString("presentacion_descripcion"));
+                    lista.add(p);
+                }
+            }
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
         }
+        return lista;
     }
 
     public Presentacion obtenerPresentacionPorId(int presId){
-        for (Presentacion pres: listaPresentacion){
-            if (pres.getPresId() == presId){
-                return pres;
+        String sql = "SELECT * FROM presentacion WHERE presentacion_id = ?";
+        Presentacion presentacion = null;
+        try (Connection con = Conexion.getConnection(); PreparedStatement ps = con.prepareStatement(sql)){
+            ps.setInt(1, presId);
+            try (ResultSet rs = ps.executeQuery()){
+                while (rs.next()){
+                    presentacion = new Presentacion();
+                    presentacion.setPresId(rs.getInt("presentacion_id"));
+                    presentacion.setPresNombre(rs.getString("presentacion_nombre"));
+                    presentacion.setPresDescripcion(rs.getString("presentacion_descripcion"));
+                }
             }
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
         }
-        return null;
+        return presentacion;
     }
 }
