@@ -12,6 +12,10 @@ public class Categoria {
         this.cateDescripcion = cateDescripcion;
     }
 
+    public Categoria (){
+
+    }
+
     public int getCateId() {
         return cateId;
     }
