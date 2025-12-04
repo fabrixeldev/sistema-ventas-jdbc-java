@@ -12,10 +12,10 @@ public class Producto{
     private String prodNombre;
     private String prodConcentracion;
     private String prodAdicional;
-    private BufferedImage prodImagen;
+    private byte[] prodImagen;
     private double prodPrecio;
 
-    public Producto(int prodId, String prodCodigo, String prodNombre, String prodConcentracion, String prodAdicional, BufferedImage prodImagen, double prodPrecio, Categoria categoria, Presentacion presentacion, Laboratorio laboratorio){
+    public Producto(int prodId, String prodCodigo, String prodNombre, String prodConcentracion, String prodAdicional, byte[] prodImagen, double prodPrecio, Categoria categoria, Presentacion presentacion, Laboratorio laboratorio){
         this.prodId = prodId;
         this.prodCodigo = prodCodigo;
         this.prodNombre = prodNombre;
@@ -26,6 +26,10 @@ public class Producto{
         this.categoria = categoria;
         this.presentacion = presentacion;
         this.laboratorio = laboratorio;
+    }
+
+    public Producto (){
+
     }
 
     public Categoria getCategoria() {
@@ -92,11 +96,11 @@ public class Producto{
         this.prodAdicional = prodAdicional;
     }
 
-    public BufferedImage getProdImagen() {
+    public byte[] getProdImagen() {
         return prodImagen;
     }
 
-    public void setProdImagen(BufferedImage prodImagen) {
+    public void setProdImagen(byte[] prodImagen) {
         this.prodImagen = prodImagen;
     }
 
@@ -118,9 +122,9 @@ public class Producto{
                 ", prodAdicional='" + prodAdicional + '\'' +
                 ", prodImagen=" + prodImagen +
                 ", prodPrecio=" + prodPrecio +
-                ", categoria=" + categoria.getCateNombre() +
-                ", presentacion=" + presentacion.getPresNombre() +
-                ", laboratorio=" + laboratorio.getLabNombre() +
+                ", categoria=" + categoria.getCateId() +
+                ", presentacion=" + presentacion.getPresId() +
+                ", laboratorio=" + laboratorio.getLabId() +
                 '}';
     }
 }
