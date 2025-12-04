@@ -1,123 +1,152 @@
 package dao;
 
+import modelo.*;
 
-import modelo.Categoria;
-import modelo.Laboratorio;
-import modelo.Presentacion;
-import modelo.Producto;
-import java.awt.image.BufferedImage;
-
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.util.*;
 
 public class ProductoDao {
-    Producto producto;
-    Categoria categoria;
-    Laboratorio laboratorio;
-    Presentacion presentacion;
 
-    private ArrayList<Producto> listaProductos = new ArrayList<>();
-
-    public void agregarProductos(int prodId, String prodCodigo, String prodNombre, String prodConcentracion, String prodAdicional, BufferedImage prodImagen, double prodPrecio, Categoria categoria, Presentacion presentacion, Laboratorio laboratorio){
-        Producto nuevoProducto = new Producto(prodId, prodCodigo, prodNombre, prodConcentracion, prodAdicional, prodImagen, prodPrecio, categoria, presentacion, laboratorio);
-        listaProductos.add(nuevoProducto);
-        System.out.println("Se registro el producto " + nuevoProducto.getProdCodigo());
-    }
-
-    public void listarProductos(){
-        if (!listaProductos.isEmpty()){
-            listaProductos.stream()
-                    .forEach(System.out::println);
-        }else {
-            System.out.println("No existen datos");
+    public void agregarProductos(Producto p){
+        String sql = "INSERT INTO producto (producto_codigo, producto_nombre, producto_concentracion, producto_adicional, producto_imagen, producto_precio, prod_id_categ, prod_id_lab, prod_id_prese) VALUES (?,?,?,?,?,?,?,?,?)";
+        try (Connection con = Conexion.getConnection(); PreparedStatement ps = con.prepareStatement(sql)){
+            ps.setString(1, p.getProdCodigo());
+            ps.setString(2, p.getProdNombre());
+            ps.setString(3, p.getProdConcentracion());
+            ps.setString(4, p.getProdAdicional());
+            ps.setBytes(5, p.getProdImagen());
+            ps.setDouble(6, p.getProdPrecio());
+            ps.setInt(7, p.getCategoria().getCateId());
+            ps.setInt(8, p.getLaboratorio().getLabId());
+            ps.setInt(9, p.getPresentacion().getPresId());
+            ps.executeUpdate();
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
         }
     }
 
-    public void editarProductos(int prodId, String prodCodigo, String prodNombre, String prodConcentracion, String prodAdicional, BufferedImage prodImagen, double prodPrecio, Categoria categoria, Presentacion presentacion, Laboratorio laboratorio){
-        for (Producto prod : listaProductos){
-            if (prod.getProdId() == prodId){
-                prod.setProdId(prodId);
-                if (!prodCodigo.isEmpty()){
-                    prod.setProdCodigo(prodCodigo);
-                }
-                if ((!prodNombre.isEmpty())){
-                    prod.setProdNombre(prodNombre);
-                }
-                if (!prodConcentracion.isEmpty()){
-                    prod.setProdConcentracion(prodConcentracion);
-                }
-                if (!prodAdicional.isEmpty()){
-                    prod.setProdAdicional(prodAdicional);
-                }
-                if (prodImagen != null){
-                    prod.setProdImagen(prodImagen);
-                }
-                if (prodPrecio !=  0){
-                    prod.setProdPrecio(prodPrecio);
-                }
-                if (categoria != null){
-                    prod.setCategoria(categoria);
-                }
-                if (presentacion != null){
-                    prod.setPresentacion(presentacion);
-                }
-                if (laboratorio != null){
-                    prod.setLaboratorio(laboratorio);
-                }
+    public List<Producto> listarProductos(){
+        List<Producto> lista = new ArrayList<>();
+        String sql = "SELECT prod.*, cat.categoria_id, lab.laboratorio_id, pres.presentacion_id FROM producto prod INNER JOIN categoria cat ON prod_id_categ = categoria_id INNER JOIN laboratorio lab ON prod_id_lab = laboratorio_id INNER JOIN presentacion pres ON prod_id_prese = presentacion_id";
+        try (Connection con = Conexion.getConnection(); PreparedStatement ps = con.prepareStatement(sql); ResultSet rs = ps.executeQuery()){
+            while (rs.next()){
+                Producto producto = new Producto();
+                Categoria categoria = new Categoria();
+                Laboratorio laboratorio = new Laboratorio();
+                Presentacion presentacion = new Presentacion();
+                producto.setProdId(rs.getInt("producto_id"));
+                producto.setProdCodigo(rs.getString("producto_codigo"));
+                producto.setProdNombre(rs.getString("producto_nombre"));
+                producto.setProdConcentracion(rs.getString("producto_concentracion"));
+                producto.setProdAdicional(rs.getString("producto_adicional"));
+                producto.setProdImagen(rs.getBytes("producto_imagen"));
+                producto.setProdPrecio(rs.getDouble("producto_precio"));
+                categoria.setCateId(rs.getInt("prod_id_categ"));
+                laboratorio.setLabId(rs.getInt("prod_id_lab"));
+                presentacion.setPresId(rs.getInt("prod_id_prese"));
+                producto.setCategoria(categoria);
+                producto.setLaboratorio(laboratorio);
+                producto.setPresentacion(presentacion);
+                lista.add(producto);
             }
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
         }
+        return lista;
+    }
 
+    public void editarProductos(Producto p){
+        String sql = "UPDATE producto SET producto_codigo = ?, producto_nombre = ?, producto_concentracion = ?, producto_adicional = ?, producto_imagen = ?, producto_precio = ?, prod_id_categ = ?, prod_id_lab = ?, prod_id_prese = ? WHERE producto_id = ?";
+        try (Connection con = Conexion.getConnection(); PreparedStatement ps = con.prepareStatement(sql)){
+            ps.setString(1, p.getProdCodigo());
+            ps.setString(2, p.getProdNombre());
+            ps.setString(3, p.getProdConcentracion());
+            ps.setString(4, p.getProdAdicional());
+            ps.setBytes(5, p.getProdImagen());
+            ps.setDouble(6, p.getProdPrecio());
+            ps.setInt(7, p.getCategoria().getCateId());
+            ps.setInt(8, p.getLaboratorio().getLabId());
+            ps.setInt(9, p.getPresentacion().getPresId());
+            ps.setInt(10, p.getProdId());
+            ps.executeUpdate();
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     public void eliminarProductos(int prodId){
-         //boolean eliminado = listaProductos.removeIf(p -> p.getProdId() == prodId);
-
-         Producto encontrado = null;
-         for (Producto p : listaProductos){
-             if (p.getProdId() == prodId){
-                 encontrado = p;
-                 break;
-             }
-         }
-
-         if (encontrado != null){
-             listaProductos.remove(encontrado);
-             System.out.println("Producto " + encontrado.getProdCodigo() + " eliminado");
-         }else {
-             System.out.println("No se encuentran coincidencias con " + prodId);
-         }
+        String sql = "DELETE FROM producto WHERE producto_id = ?";
+        try (Connection con = Conexion.getConnection(); PreparedStatement ps = con.prepareStatement(sql)){
+            ps.setInt(1, prodId);
+            ps.executeUpdate();
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
     }
 
-
-    public void buscarProducto(String prodNombre){
-        Optional<Producto> busqueda = listaProductos.stream()
-                .filter(p -> p.getProdNombre().equals(prodNombre))
-                .findFirst();
-
-        busqueda.ifPresentOrElse(
-                p -> System.out.println("Producto encontrado : " + p.toString()),
-                () -> System.out.println("Producto no encontrado")
-        );
-    }
-
-    public double productoCaro(){
-
-        Optional<Producto> prodCaro = listaProductos.stream()
-                .max(Comparator.comparing(Producto::getProdPrecio));
-
-        prodCaro.ifPresentOrElse(
-                pc -> System.out.println("El producto mas caro es: " + pc.getProdNombre() + " - " + pc.getProdPrecio()),
-                () -> System.out.println("No hay productos")
-        );
-        return prodCaro.map(Producto::getProdPrecio).orElse(0.0);
-
+    public List<Producto> buscarProducto(String prodNombre){
+        List<Producto> lista = new ArrayList<>();
+        String sql = "SELECT prod.*, cat.categoria_id, lab.laboratorio_id, pres.presentacion_id FROM producto prod INNER JOIN categoria cat ON prod_id_categ = categoria_id INNER JOIN laboratorio lab ON prod_id_lab = laboratorio_id INNER JOIN presentacion pres ON prod_id_prese = presentacion_id WHERE producto_nombre = ?";
+        try (Connection con = Conexion.getConnection(); PreparedStatement ps = con.prepareStatement(sql)){
+            ps.setString(1, prodNombre);
+            try (ResultSet rs = ps.executeQuery()){
+                while (rs.next()){
+                    Producto producto = new Producto();
+                    Categoria categoria = new Categoria();
+                    Laboratorio laboratorio = new Laboratorio();
+                    Presentacion presentacion = new Presentacion();
+                    producto.setProdId(rs.getInt("producto_id"));
+                    producto.setProdCodigo(rs.getString("producto_codigo"));
+                    producto.setProdNombre(rs.getString("producto_nombre"));
+                    producto.setProdConcentracion(rs.getString("producto_concentracion"));
+                    producto.setProdAdicional(rs.getString("producto_adicional"));
+                    producto.setProdImagen(rs.getBytes("producto_imagen"));
+                    producto.setProdPrecio(rs.getDouble("producto_precio"));
+                    categoria.setCateId(rs.getInt("prod_id_categ"));
+                    laboratorio.setLabId(rs.getInt("prod_id_lab"));
+                    presentacion.setPresId(rs.getInt("prod_id_prese"));
+                    producto.setCategoria(categoria);
+                    producto.setLaboratorio(laboratorio);
+                    producto.setPresentacion(presentacion);
+                    lista.add(producto);
+                }
+            }
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+        return lista;
     }
 
     public Producto obtenerProductoPorId(int prodId){
-        for (Producto prod: listaProductos){
-            if (prod.getProdId() == prodId){
-                return prod;
+        String sql = "SELECT prod.*, cat.categoria_id, lab.laboratorio_id, pres.presentacion_id FROM producto prod INNER JOIN categoria cat ON prod_id_categ = categoria_id INNER JOIN laboratorio lab ON prod_id_lab = laboratorio_id INNER JOIN presentacion pres ON prod_id_prese = presentacion_id WHERE producto_id = ?";
+        Producto producto = null;
+        try (Connection con = Conexion.getConnection(); PreparedStatement ps = con.prepareStatement(sql)){
+            ps.setInt(1, prodId);
+            try (ResultSet rs = ps.executeQuery()){
+                producto = new Producto();
+                Categoria categoria = new Categoria();
+                Laboratorio laboratorio = new Laboratorio();
+                Presentacion presentacion = new Presentacion();
+                producto.setProdId(rs.getInt("producto_id"));
+                producto.setProdCodigo(rs.getString("producto_codigo"));
+                producto.setProdNombre(rs.getString("producto_nombre"));
+                producto.setProdConcentracion(rs.getString("producto_concentracion"));
+                producto.setProdAdicional(rs.getString("producto_adicional"));
+                producto.setProdImagen(rs.getBytes("producto_imagen"));
+                producto.setProdPrecio(rs.getDouble("producto_precio"));
+                categoria.setCateId(rs.getInt("prod_id_categ"));
+                laboratorio.setLabId(rs.getInt("prod_id_lab"));
+                presentacion.setPresId(rs.getInt("prod_id_prese"));
+                producto.setCategoria(categoria);
+                producto.setLaboratorio(laboratorio);
+                producto.setPresentacion(presentacion);
             }
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
         }
-        return null;
+        return producto;
     }
 }
