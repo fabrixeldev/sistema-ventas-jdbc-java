@@ -126,23 +126,25 @@ public class ProductoDao {
         try (Connection con = Conexion.getConnection(); PreparedStatement ps = con.prepareStatement(sql)){
             ps.setInt(1, prodId);
             try (ResultSet rs = ps.executeQuery()){
-                producto = new Producto();
-                Categoria categoria = new Categoria();
-                Laboratorio laboratorio = new Laboratorio();
-                Presentacion presentacion = new Presentacion();
-                producto.setProdId(rs.getInt("producto_id"));
-                producto.setProdCodigo(rs.getString("producto_codigo"));
-                producto.setProdNombre(rs.getString("producto_nombre"));
-                producto.setProdConcentracion(rs.getString("producto_concentracion"));
-                producto.setProdAdicional(rs.getString("producto_adicional"));
-                producto.setProdImagen(rs.getBytes("producto_imagen"));
-                producto.setProdPrecio(rs.getDouble("producto_precio"));
-                categoria.setCateId(rs.getInt("prod_id_categ"));
-                laboratorio.setLabId(rs.getInt("prod_id_lab"));
-                presentacion.setPresId(rs.getInt("prod_id_prese"));
-                producto.setCategoria(categoria);
-                producto.setLaboratorio(laboratorio);
-                producto.setPresentacion(presentacion);
+                while (rs.next()){
+                    producto = new Producto();
+                    Categoria categoria = new Categoria();
+                    Laboratorio laboratorio = new Laboratorio();
+                    Presentacion presentacion = new Presentacion();
+                    producto.setProdId(rs.getInt("producto_id"));
+                    producto.setProdCodigo(rs.getString("producto_codigo"));
+                    producto.setProdNombre(rs.getString("producto_nombre"));
+                    producto.setProdConcentracion(rs.getString("producto_concentracion"));
+                    producto.setProdAdicional(rs.getString("producto_adicional"));
+                    producto.setProdImagen(rs.getBytes("producto_imagen"));
+                    producto.setProdPrecio(rs.getDouble("producto_precio"));
+                    categoria.setCateId(rs.getInt("prod_id_categ"));
+                    laboratorio.setLabId(rs.getInt("prod_id_lab"));
+                    presentacion.setPresId(rs.getInt("prod_id_prese"));
+                    producto.setCategoria(categoria);
+                    producto.setLaboratorio(laboratorio);
+                    producto.setPresentacion(presentacion);
+                }
             }
         } catch (SQLException e) {
             throw new RuntimeException(e);
