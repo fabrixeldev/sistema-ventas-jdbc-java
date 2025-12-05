@@ -1,88 +1,122 @@
 package dao;
 
-import modelo.DetalleCompra;
+import modelo.Conexion;
 import modelo.Lote;
 import modelo.Producto;
 
+import java.sql.*;
 import java.util.ArrayList;
-import java.util.Date;
-import java.util.Optional;
+import java.util.List;
 
 public class LoteDao {
-    private Producto producto;
 
-    private ArrayList<Lote> listaLote = new ArrayList<>();
-
-    public void agregarLote(int loteId, String loteCodigo, int loteCantidad, Date loteFechaCreacion, Date loteFechaVenc, Producto producto){
-        Lote nuevoLote = new Lote(loteId, loteCodigo, loteCantidad, loteFechaCreacion, loteFechaVenc, producto);
-        listaLote.add(nuevoLote);
-        System.out.println("Se registro el Lote: " + nuevoLote.getLoteCodigo());
-    }
-
-    public void listarLote(){
-        if (listaLote.size() != 0){
-            System.out.println(listaLote);
-        }else{
-            System.out.println("No existen datos para mostrar");
+    public void agregarLote(Lote lote){
+        String sql = "INSERT INTO lote (lote_codigo, lote_cantidad, lote_fechaCreacion, lote_fechaVencimiento, lote_id_producto) VALUES (?,?,?,?,?)";
+        try (Connection con = Conexion.getConnection(); PreparedStatement ps = con.prepareStatement(sql)){
+            ps.setString(1, lote.getLoteCodigo());
+            ps.setInt(2, lote.getLoteCantidad());
+            ps.setDate(3, Date.valueOf(lote.getLoteFechaCreacion()));
+            ps.setDate(4, Date.valueOf(lote.getLoteFechaVenc()));
+            ps.setInt(5, lote.getProducto().getProdId());
+            ps.executeUpdate();
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
         }
     }
 
-    public void editarLote(int loteId, String loteCodigo, int loteCantidad, Date loteFechaCreacion, Date loteFechaVenc, Producto producto){
-        for (Lote lote: listaLote){
-            if (lote.getLoteId() == loteId){
-                if (!loteCodigo.equals("")){
-                    lote.setLoteCodigo(loteCodigo);
-                }
-                if (loteCantidad != 0){
-                    lote.setLoteCantidad(loteCantidad);
-                }
-                if (loteFechaCreacion != null){
-                    lote.setLoteFechaCreacion(loteFechaCreacion);
-                }
-                if (loteFechaVenc != null){
-                    lote.setLoteFechaVenc(loteFechaVenc);
-                }
-                if (producto != null){
-                    lote.setProducto(producto);
-                }
+    public List<Lote> listarLote(){
+        List<Lote> lista = new ArrayList<>();
+        String sql = "SELECT l.*, p.producto_id FROM lote l INNER JOIN producto p ON lote_id_producto = producto_id";
+        try (Connection con = Conexion.getConnection(); PreparedStatement ps = con.prepareStatement(sql); ResultSet rs = ps.executeQuery()){
+            while (rs.next()){
+                Lote lote = new Lote();
+                Producto p = new Producto();
+                lote.setLoteId(rs.getInt("lote_id"));
+                lote.setLoteCodigo(rs.getString("lote_codigo"));
+                lote.setLoteCantidad(rs.getInt("lote_cantidad"));
+                lote.setLoteFechaCreacion(rs.getDate("lote_fechaCreacion").toLocalDate());
+                lote.setLoteFechaVenc(rs.getDate("lote_fechaVencimiento").toLocalDate());
+                p.setProdId(rs.getInt("producto_id"));
+                lote.setProducto(p);
+                lista.add(lote);
             }
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+        return lista;
+    }
+
+    public void editarLote(Lote lote){
+        String sql = "UPDATE lote SET lote_codigo = ?, lote_cantidad = ?, lote_fechaCreacion = ?, lote_fechaVencimiento = ?, lote_id_producto = ? WHERE lote_id = ?";
+        try (Connection con = Conexion.getConnection(); PreparedStatement ps = con.prepareStatement(sql)){
+            ps.setString(1, lote.getLoteCodigo());
+            ps.setInt(2, lote.getLoteCantidad());
+            ps.setDate(3, Date.valueOf(lote.getLoteFechaCreacion()));
+            ps.setDate(4, Date.valueOf(lote.getLoteFechaVenc()));
+            ps.setInt(5, lote.getProducto().getProdId());
+            ps.setInt(6, lote.getLoteId());
+            ps.executeUpdate();
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
         }
     }
 
     public void eliminarLote(int loteId){
-        Lote encontrado = null;
-        for (Lote lote : listaLote){
-            if (lote.getLoteId() == loteId){
-                encontrado = lote;
-            }
-        }
-
-        if (encontrado != null){
-            listaLote.remove(encontrado);
-            System.out.println("Se elimino el Lote: " + loteId);
-        }else {
-            System.out.println("No se pudo eliminar el lote " + loteId);
+        String sql = "DELETE FROM lote WHERE lote_id = ?";
+        try (Connection con = Conexion.getConnection(); PreparedStatement ps = con.prepareStatement(sql)){
+            ps.setInt(1, loteId);
+            ps.executeUpdate();
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
         }
     }
 
-    public void buscarLote(int loteId){
-        Optional<Lote> busqueda = listaLote.stream()
-                .filter(i -> i.getLoteId() == loteId)
-                .findFirst();
-
-        if (busqueda.isPresent()){
-            System.out.println("Lote encontrado: " + toString());
-        }else {
-            System.out.println("No se encontro coincidencias con " + loteId);
+    public List<Lote> buscarLote(int loteId){
+        List<Lote> lista = new ArrayList<>();
+        String sql = "SELECT l.*, p.producto_id FROM lote l INNER JOIN producto p ON lote_id_producto = producto_id WHERE lote_id = ?";
+        try (Connection con = Conexion.getConnection(); PreparedStatement ps = con.prepareStatement(sql)){
+            ps.setInt(1, loteId);
+            try (ResultSet rs = ps.executeQuery()){
+                while (rs.next()){
+                    Lote lote = new Lote();
+                    Producto p = new Producto();
+                    lote.setLoteId(rs.getInt("lote_id"));
+                    lote.setLoteCodigo(rs.getString("lote_codigo"));
+                    lote.setLoteCantidad(rs.getInt("lote_cantidad"));
+                    lote.setLoteFechaCreacion(rs.getDate("lote_fechaCreacion").toLocalDate());
+                    lote.setLoteFechaVenc(rs.getDate("lote_fechaVencimiento").toLocalDate());
+                    p.setProdId(rs.getInt("producto_id"));
+                    lote.setProducto(p);
+                    lista.add(lote);
+                }
+            }
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
         }
+        return lista;
     }
 
     public Lote obtenerLotePorId(int loteId){
-        for (Lote lote: listaLote){
-            if (lote.getLoteId() == loteId){
-                return lote;
+        String sql = "SELECT l.*, p.producto_id FROM lote l INNER JOIN producto p ON lote_id_producto = producto_id WHERE lote_id = ?";
+        Lote lote = null;
+        try (Connection con = Conexion.getConnection(); PreparedStatement ps = con.prepareStatement(sql)){
+            ps.setInt(1, loteId);
+            try (ResultSet rs = ps.executeQuery()){
+                while (rs.next()){
+                    lote = new Lote();
+                    Producto p = new Producto();
+                    lote.setLoteId(rs.getInt("lote_id"));
+                    lote.setLoteCodigo(rs.getString("lote_codigo"));
+                    lote.setLoteCantidad(rs.getInt("lote_cantidad"));
+                    lote.setLoteFechaCreacion(rs.getDate("lote_fechaCreacion").toLocalDate());
+                    lote.setLoteFechaVenc(rs.getDate("lote_fechaVencimiento").toLocalDate());
+                    p.setProdId(rs.getInt("producto_id"));
+                    lote.setProducto(p);
+                }
             }
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
         }
-        return null;
+        return lote;
     }
 }
