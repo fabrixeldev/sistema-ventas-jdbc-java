@@ -92,18 +92,20 @@ public class DetalleVentaDao {
     }
 
     public DetalleVenta obtenerDetalleVentaPorId(int detVenId){
-        String sql = "SELECT dv.* v.venta_id FROM detalleVenta dv INNER JOIN venta v ON detalleVenta_id_venta = venta_id WHERE detalleVenta_id = ?";
+        String sql = "SELECT dv.*, v.venta_id FROM detalleVenta dv INNER JOIN venta v ON detalleVenta_id_venta = venta_id WHERE detalleVenta_id = ?";
         DetalleVenta detalleVenta = null;
         try (Connection con = Conexion.getConnection(); PreparedStatement ps = con.prepareStatement(sql)){
             ps.setInt(1, detVenId);
             try (ResultSet rs = ps.executeQuery()){
-                detalleVenta = new DetalleVenta();
-                Venta venta = new Venta();
-                detalleVenta.setDetVenId(rs.getInt("detalleVenta_id"));
-                detalleVenta.setDetVenPrecio(rs.getDouble("detalleVenta_precioVenta"));
-                detalleVenta.setDetVenDescuento(rs.getDouble("detalleVenta_descuento"));
-                venta.setVentId(rs.getInt("venta_id"));
-                detalleVenta.setVenta(venta);
+                while (rs.next()){
+                    detalleVenta = new DetalleVenta();
+                    Venta venta = new Venta();
+                    detalleVenta.setDetVenId(rs.getInt("detalleVenta_id"));
+                    detalleVenta.setDetVenPrecio(rs.getDouble("detalleVenta_precioVenta"));
+                    detalleVenta.setDetVenDescuento(rs.getDouble("detalleVenta_descuento"));
+                    venta.setVentId(rs.getInt("venta_id"));
+                    detalleVenta.setVenta(venta);
+                }
             }
         } catch (SQLException e) {
             throw new RuntimeException(e);
