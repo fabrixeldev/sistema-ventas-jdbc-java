@@ -17,6 +17,10 @@ public class DetalleCompra {
         this.compra = compra;
     }
 
+    public DetalleCompra(){
+
+    }
+
     public Compra getCompra() {
         return compra;
     }
@@ -63,8 +67,8 @@ public class DetalleCompra {
                 ", detCompId=" + detCompId +
                 ", detCompCantidad=" + detCompCantidad +
                 ", detCompPrecio=" + detCompPrecio +
-                ", compra=" + compra +
-                ", producto=" + producto +
+                ", compra=" + compra.getCompraId() +
+                ", producto=" + producto.getProdId() +
                 '}';
     }
 }
