@@ -1,6 +1,6 @@
 package modelo;
 
-import java.util.Date;
+import java.time.LocalDate;
 
 public class Lote {
 
@@ -9,16 +9,20 @@ public class Lote {
     private int loteId;
     private String loteCodigo;
     private int loteCantidad;
-    private Date loteFechaCreacion;
-    private Date loteFechaVenc;
+    private LocalDate loteFechaCreacion;
+    private LocalDate loteFechaVenc;
 
-    public Lote(int loteId, String loteCodigo, int loteCantidad, Date loteFechaCreacion, Date loteFechaVenc, Producto producto){
+    public Lote(int loteId, String loteCodigo, int loteCantidad, LocalDate loteFechaCreacion, LocalDate loteFechaVenc, Producto producto){
         this.loteId = loteId;
         this.loteCodigo = loteCodigo;
         this.loteCantidad = loteCantidad;
         this.loteFechaCreacion = loteFechaCreacion;
         this.loteFechaVenc = loteFechaVenc;
         this.producto = producto;
+    }
+
+    public Lote(){
+
     }
 
     public Producto getProducto() {
@@ -53,31 +57,31 @@ public class Lote {
         this.loteCantidad = loteCantidad;
     }
 
-    public Date getLoteFechaCreacion() {
+    public LocalDate getLoteFechaCreacion() {
         return loteFechaCreacion;
     }
 
-    public void setLoteFechaCreacion(Date loteFechaCreacion) {
+    public void setLoteFechaCreacion(LocalDate loteFechaCreacion) {
         this.loteFechaCreacion = loteFechaCreacion;
     }
 
-    public Date getLoteFechaVenc() {
+    public LocalDate getLoteFechaVenc() {
         return loteFechaVenc;
     }
 
-    public void setLoteFechaVenc(Date loteFechaVenc) {
+    public void setLoteFechaVenc(LocalDate loteFechaVenc) {
         this.loteFechaVenc = loteFechaVenc;
     }
 
     @Override
     public String toString() {
         return "Lote{" +
-                ", producto=" + producto.getProdCodigo() +
                 ", loteId=" + loteId +
                 ", loteCodigo='" + loteCodigo + '\'' +
                 ", loteCantidad=" + loteCantidad +
                 ", loteFechaCreacion=" + loteFechaCreacion +
                 ", loteFechaVenc=" + loteFechaVenc +
+                ", producto=" + producto.getProdId() +
                 '}';
     }
 }
