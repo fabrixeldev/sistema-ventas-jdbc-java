@@ -1,77 +1,102 @@
 package dao;
 
 import modelo.Compra;
+import modelo.Conexion;
 import modelo.DetalleCompra;
-import modelo.Lote;
 import modelo.Producto;
 
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.util.ArrayList;
-import java.util.Optional;
+import java.util.List;
 
 public class DetalleCompraDao {
-    private Compra compra;
-    private Producto producto;
 
-    private ArrayList<DetalleCompra> listaDetalleCompra = new ArrayList<>();
-
-    public void agregarDetalleCompra(int detCompId, int detCompCantidad, double detCompPrecio, Producto producto, Compra compra){
-        DetalleCompra detalleCompraNuevo = new DetalleCompra(detCompId, detCompCantidad, detCompPrecio, producto, compra);
-        listaDetalleCompra.add(detalleCompraNuevo);
-        System.out.println("Se registro el Detalle de Compra: " + detalleCompraNuevo.getDetCompId());
-    }
-
-    public void listarDetalleCompra(){
-        if (listaDetalleCompra.size() != 0){
-            System.out.println(listaDetalleCompra);
-        }else{
-            System.out.println("No existen datos para mostrar");
+    public void agregarDetalleCompra(DetalleCompra dc){
+        String sql = "INSERT INTO detalleCompra (detalleCompra_cantidad, detalleCompra_precioCompra, detalleCompra_id_compra, detalleCompra_id_producto) VALUES (?,?,?,?)";
+        try (Connection con = Conexion.getConnection(); PreparedStatement ps = con.prepareStatement(sql)){
+            ps.setInt(1, dc.getDetCompCantidad());
+            ps.setDouble(2, dc.getDetCompPrecio());
+            ps.setInt(3, dc.getCompra().getCompraId());
+            ps.setInt(4, dc.getProducto().getProdId());
+            ps.executeUpdate();
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
         }
     }
 
-    public void editarDetalleCompra(int detCompId, int detCompCantidad, double detCompPrecio, Producto producto, Compra compra){
-        for (DetalleCompra detalleCompra: listaDetalleCompra){
-            if (detalleCompra.getDetCompId() == detCompId){
-                if (detCompCantidad != 0){
-                    detalleCompra.setDetCompCantidad(detCompCantidad);
-                }
-                if (detCompPrecio != 0){
-                    detalleCompra.setDetCompPrecio(detCompPrecio);
-                }
-                if (producto != null){
-                    detalleCompra.setProducto(producto);
-                }
-                if (compra != null){
-                    detalleCompra.setCompra(compra);
-                }
+    public List<DetalleCompra> listarDetalleCompra(){
+        List<DetalleCompra> lista = new ArrayList<>();
+        String sql = "SELECT dc.*, c.compra_id, p.producto_id FROM detalleCompra dc INNER JOIN compra c ON detalleCompra_id_compra = compra_id INNER JOIN producto p ON detalleCompra_id_producto = producto_id";
+        try (Connection con = Conexion.getConnection(); PreparedStatement ps = con.prepareStatement(sql); ResultSet rs = ps.executeQuery()){
+            while (rs.next()){
+                DetalleCompra dc = new DetalleCompra();
+                Compra c = new Compra();
+                Producto p = new Producto();
+                dc.setDetCompId(rs.getInt("detalleCompra_id"));
+                dc.setDetCompCantidad(rs.getInt("detalleCompra_cantidad"));
+                dc.setDetCompPrecio(rs.getDouble("detalleCompra_precioCompra"));
+                c.setCompraId(rs.getInt("compra_id"));
+                p.setProdId(rs.getInt("producto_id"));
+                dc.setCompra(c);
+                dc.setProducto(p);
+                lista.add(dc);
             }
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+        return lista;
+    }
+
+    public void editarDetalleCompra(DetalleCompra dc){
+        String sql = "UPDATE detalleCompra SET detalleCompra_cantidad = ?, detalleCompra_precioCompra = ?, detalleCompra_id_compra = ?, detalleCompra_id_producto = ? WHERE detalleCompra_id = ?";
+        try (Connection con = Conexion.getConnection(); PreparedStatement ps = con.prepareStatement(sql)){
+            ps.setInt(1, dc.getDetCompCantidad());
+            ps.setDouble(2, dc.getDetCompPrecio());
+            ps.setInt(3, dc.getCompra().getCompraId());
+            ps.setInt(4, dc.getProducto().getProdId());
+            ps.setInt(5, dc.getDetCompId());
+            ps.executeUpdate();
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
         }
     }
 
     public void eliminarDetalleCompra(int detCompId){
-        DetalleCompra encontrado = null;
-        for (DetalleCompra dc: listaDetalleCompra){
-            if (dc.getDetCompId() == detCompId){
-                encontrado = dc;
-            }
-        }
-
-        if (encontrado != null){
-            listaDetalleCompra.remove(encontrado);
-            System.out.println("Se elimino " + detCompId);
-        }else {
-            System.out.println("No se pudo eliminar " + detCompId);
+        String sql = "DELETE FROM detalleCompra WHERE detalleCompra_id = ?";
+        try (Connection con = Conexion.getConnection(); PreparedStatement ps = con.prepareStatement(sql)){
+            ps.setInt(1, detCompId);
+            ps.executeUpdate();
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
         }
     }
 
-    public void buscarDetalleCompra(int detCompId){
-        Optional<DetalleCompra> busqueda = listaDetalleCompra.stream()
-                .filter(s -> s.getDetCompId() == detCompId)
-                .findFirst();
-
-        if (busqueda.isPresent()){
-            System.out.println("Detalle Compra encontrado: " + toString());
-        }else {
-            System.out.println("No se encontro coincidencias con: " + detCompId);
+    public List<DetalleCompra> buscarDetalleCompra(int detCompId){
+        List<DetalleCompra> lista = new ArrayList<>();
+        String sql = "SELECT dc.*, c.compra_id, p.producto_id FROM detalleCompra dc INNER JOIN compra c ON detalleCompra_id_compra = compra_id INNER JOIN producto p ON detalleCompra_id_producto = producto_id WHERE detalleCompra_id = ?";
+        try (Connection con = Conexion.getConnection(); PreparedStatement ps = con.prepareStatement(sql)){
+            ps.setInt(1, detCompId);
+            try (ResultSet rs = ps.executeQuery()){
+                while (rs.next()){
+                    DetalleCompra dc = new DetalleCompra();
+                    Compra c = new Compra();
+                    Producto p = new Producto();
+                    dc.setDetCompId(rs.getInt("detalleCompra_id"));
+                    dc.setDetCompCantidad(rs.getInt("detalleCompra_cantidad"));
+                    dc.setDetCompPrecio(rs.getDouble("detalleCompra_precioCompra"));
+                    c.setCompraId(rs.getInt("compra_id"));
+                    p.setProdId(rs.getInt("producto_id"));
+                    dc.setCompra(c);
+                    dc.setProducto(p);
+                    lista.add(dc);
+                }
+            }
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
         }
+        return lista;
     }
 }
